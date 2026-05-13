@@ -20,15 +20,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          package-manager-cache: false
-      - name: Install dependencies
-        run: npm ci
       - name: Build with Astro
         uses: withastro/action@v6
+        with:
+          node-version: 24
+          package-manager: npm
+          cache: false
 
   deploy:
     needs: build
