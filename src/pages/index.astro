@@ -3,14 +3,12 @@ import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import Socials from "@/components/Socials.astro";
 import LinkButton from "@/components/LinkButton.astro";
 import Card from "@/components/Card.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import IconRss from "@/assets/icons/IconRss.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 import { SITE } from "@/config";
-import { SOCIALS } from "@/constants";
 
 const posts = await getCollection("blog");
 
@@ -24,7 +22,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
   <main id="main-content" data-layout="index" class="app-layout">
     <section id="hero" class:list={["pt-8 pb-6", "border-b border-border"]}>
       <h1 class="my-4 inline-block text-4xl font-bold sm:my-8 sm:text-5xl">
-        Mingalaba
+        Delulu2Solulu
       </h1>
       <a
         target="_blank"
@@ -42,23 +40,13 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
       </a>
 
       <p>
-        你好，我是一名持续学习中的开发者，这里记录我的思考、项目实践和
-        生活片段。欢迎你在这里随便逛逛，也希望这些内容能给你带来一点启发。
+        欢迎来到这里。这个首页不想写得太“标准答案”，更像是一句打招呼：
+        你看到的每一篇记录，都是我在真实工作和学习里反复试错后留下的痕迹。
       </p>
       <p class="mt-2">
-        Hi, I'm a developer who is always learning. This is where I share my
-        thoughts, projects, and life notes. Feel free to explore, and I hope
-        something here is helpful or inspiring to you.
+        If something here helps you avoid one bad decision, ship one better idea,
+        or simply feel less alone while building, then this blog has done its job.
       </p>
-      {
-        // only display if at least one social link is enabled
-        SOCIALS.length > 0 && (
-          <div class="mt-4 flex max-sm:flex-col sm:items-center">
-            <div class="me-2 mb-1 whitespace-nowrap sm:mb-0">Social Links:</div>
-            <Socials />
-          </div>
-        )
-      }
     </section>
 
     {
