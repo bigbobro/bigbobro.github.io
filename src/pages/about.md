@@ -14,6 +14,4 @@ This site is where I share ongoing notes about:
 - Tools, workflows, and productivity methods
 - AI use cases and personal explorations
 
-I write in both Chinese and English, while keeping the overall style English-first.
-
 If you'd like to connect, feel free to reach me on [GitHub](https://github.com/bigbobro).
