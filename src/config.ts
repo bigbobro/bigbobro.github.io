@@ -3,7 +3,7 @@ export const SITE = {
   author: "BigBoBro",
   profile: "https://github.com/bigbobro",
   desc: "From idea to solution: AI use cases, explorations, and growth notes.",
-  title: "Idea 2 Solution",
+  title: "BuildFromIdea",
   ogImage: "og.png",
   lightAndDarkMode: true,
   postPerIndex: 4,
