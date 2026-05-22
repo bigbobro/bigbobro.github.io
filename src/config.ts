@@ -1,9 +1,11 @@
 export const SITE = {
-  website: "https://astro-paper.pages.dev/", // replace this with your deployed domain
+  website: "https://blog.buildfromidea.com",
   author: "BigBoBro",
   profile: "https://github.com/bigbobro",
   desc: "From idea to solution: AI use cases, explorations, and growth notes.",
   title: "BuildFromIdea",
+  titleZh: "开物成务",
+  fullTitle: "BuildFromIdea · 开物成务",
   ogImage: "og.png",
   lightAndDarkMode: true,
   postPerIndex: 4,
