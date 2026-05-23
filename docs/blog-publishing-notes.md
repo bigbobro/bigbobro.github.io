@@ -120,6 +120,83 @@ Use images only when they help the reader understand the post.
 
 Avoid decorative images in ordinary posts. If an image is used, keep alt text clear and factual.
 
+### Post Image Storage
+
+Use `public/images/posts/<post-slug>/` for images that belong to a specific article.
+
+Example:
+
+```text
+public/images/posts/ai-subscription-upgrade/
+  subscription-dashboard.png
+  workflow-sketch.webp
+```
+
+Reference these images from Markdown with root-relative paths:
+
+```markdown
+![AI subscription dashboard](/images/posts/ai-subscription-upgrade/subscription-dashboard.png)
+```
+
+Do not store post images in `src/assets/icons/`; that folder is for site UI icons.
+
+### Image Types
+
+There are two normal sources of post images:
+
+1. User-provided screenshots or files.
+2. AI-generated illustrations or diagrams.
+
+For user-provided screenshots:
+
+- Keep the image only if it helps explain the article.
+- Redact or crop private data, customer names, account IDs, emails, internal URLs, and pricing details before publishing.
+- Prefer factual captions and alt text.
+- Do not use screenshots as decoration.
+
+For AI-generated images:
+
+- Use them only when they clarify a concept, workflow, or metaphor.
+- Avoid generic hero images and decorative stock-like illustrations.
+- Prefer simple diagrams, workflow sketches, or small supporting visuals.
+- Name them as generated assets, not as screenshots.
+
+### File Naming
+
+Use lowercase, hyphenated names.
+
+Good:
+
+```text
+meeting-transcript-workflow.png
+codex-obsidian-memory-layer.webp
+```
+
+Avoid:
+
+```text
+IMG_1234.PNG
+Screen Shot 2026-05-23 at 10.31.22.png
+final-final-v2.png
+```
+
+### When Not To Add Images
+
+Most ordinary posts do not need images.
+
+Skip images when:
+
+- The image only makes the post look busier.
+- The article is a short reflection.
+- The same idea is clearer as text or a small Markdown list.
+- The image needs too much explanation to be useful.
+
+### OG Images
+
+The current site has `dynamicOgImage: false`.
+
+Do not add custom `ogImage` frontmatter by default. Add it only when a post has a strong, reusable visual that should appear in link previews.
+
 ## Updates
 
 When publishing rules or site voice changes, update this file with the same change. The goal is to keep the repo self-explanatory for future writing sessions.
