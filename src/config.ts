@@ -2,7 +2,7 @@ export const SITE = {
   website: "https://blog.buildfromidea.com",
   author: "BigBoBro",
   profile: "https://github.com/bigbobro",
-  desc: "From idea to solution: AI use cases, explorations, and growth notes.",
+  desc: "从想法到方案：AI 使用、真实项目踩坑，以及还在形成中的判断。",
   title: "BuildFromIdea",
   titleZh: "开物成务",
   fullTitle: "BuildFromIdea · 开物成务",
@@ -15,11 +15,11 @@ export const SITE = {
   showBackButton: true, // show back button in post detail
   editPost: {
     enabled: true,
-    text: "Edit page",
+    text: "编辑页面",
     url: "https://github.com/bigbobro/bigbobro.github.io/edit/main/",
   },
   dynamicOgImage: false,
   dir: "ltr", // "rtl" | "auto"
-  lang: "en", // html lang code. Set this empty and default will be "en"
-  timezone: "Etc/UTC", // Default global timezone (IANA format) https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  lang: "zh-CN", // primary content language for this personal publication
+  timezone: "Asia/Shanghai",
 } as const;

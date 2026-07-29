@@ -67,6 +67,9 @@ const layoutProps = {
   scrollSmooth: true,
 };
 
+const isWeeklySignal = tags.includes("weekly-ai-signal");
+const seriesLabel = isWeeklySignal ? "AI 周观察" : "实践复盘";
+
 /* ========== Prev/Next Posts ========== */
 
 const allPosts = posts.map(({ data: { title }, id, filePath }) => ({
@@ -79,7 +82,23 @@ const currentPostIndex = allPosts.findIndex(a => a.id === post.id);
 
 const prevPost = currentPostIndex !== 0 ? allPosts[currentPostIndex - 1] : null;
 const nextPost =
-  currentPostIndex !== allPosts.length ? allPosts[currentPostIndex + 1] : null;
+  currentPostIndex !== allPosts.length - 1
+    ? allPosts[currentPostIndex + 1]
+    : null;
+
+/* Weekly-only neighbors for series continuity */
+const weeklyPosts = posts
+  .filter(p => p.data.tags.includes("weekly-ai-signal"))
+  .map(({ data: { title }, id, filePath }) => ({ id, title, filePath }));
+
+// `posts` is newest-first. "上一期" = older week (later in array), "下一期" = newer week (earlier).
+const weeklyIndex = weeklyPosts.findIndex(p => p.id === post.id);
+const prevWeeklyPost =
+  isWeeklySignal && weeklyIndex >= 0 && weeklyIndex < weeklyPosts.length - 1
+    ? weeklyPosts[weeklyIndex + 1]
+    : null;
+const nextWeeklyPost =
+  isWeeklySignal && weeklyIndex > 0 ? weeklyPosts[weeklyIndex - 1] : null;
 ---
 
 <Layout {...layoutProps}>
@@ -90,13 +109,20 @@ const nextPost =
     class:list={["app-layout pb-12", { "mt-8": !SITE.showBackButton }]}
     data-pagefind-body
   >
+    <div class="mb-3">
+      <span
+        class="inline-block rounded border border-border px-2 py-0.5 font-mono text-[11px] tracking-wide text-accent"
+      >
+        {seriesLabel}
+      </span>
+    </div>
     <h1
       transition:name={slugifyStr(title.replaceAll(".", "-"))}
       class="inline-block text-2xl font-bold text-accent sm:text-3xl"
     >
       {title}
     </h1>
-    <div class="my-2 flex items-center gap-2">
+    <div class="my-2 flex flex-wrap items-center gap-2">
       <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />
       <span
         aria-hidden="true"
@@ -107,6 +133,18 @@ const nextPost =
       >
       <EditPost {hideEditPost} {post} class="max-sm:hidden" />
     </div>
+    {
+      description && (
+        <p
+          class:list={[
+            "mt-5 mb-2 max-w-app border-s-2 border-accent/45 ps-4",
+            "text-base leading-relaxed text-foreground/75 sm:text-lg",
+          ]}
+        >
+          {description}
+        </p>
+      )
+    }
     <article
       id="article"
       class="app-prose mt-8 w-full max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
@@ -128,6 +166,40 @@ const nextPost =
 
     <hr class="my-6 border-dashed" />
 
+    {
+      isWeeklySignal && (prevWeeklyPost || nextWeeklyPost) && (
+        <div
+          data-pagefind-ignore
+          class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2"
+        >
+          {prevWeeklyPost && (
+            <a
+              href={getPath(prevWeeklyPost.id, prevWeeklyPost.filePath)}
+              class="flex w-full gap-1 hover:opacity-75"
+            >
+              <IconChevronLeft class="inline-block flex-none rtl:rotate-180" />
+              <div>
+                <span class="text-sm text-foreground/60">上一期周观察</span>
+                <div class="text-sm text-accent/85">{prevWeeklyPost.title}</div>
+              </div>
+            </a>
+          )}
+          {nextWeeklyPost && (
+            <a
+              href={getPath(nextWeeklyPost.id, nextWeeklyPost.filePath)}
+              class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"
+            >
+              <div>
+                <span class="text-sm text-foreground/60">下一期周观察</span>
+                <div class="text-sm text-accent/85">{nextWeeklyPost.title}</div>
+              </div>
+              <IconChevronRight class="inline-block flex-none rtl:rotate-180" />
+            </a>
+          )}
+        </div>
+      )
+    }
+
     <!-- Previous/Next Post Buttons -->
     <div data-pagefind-ignore class="grid grid-cols-1 gap-6 sm:grid-cols-2">
       {
@@ -138,7 +210,7 @@ const nextPost =
           >
             <IconChevronLeft class="inline-block flex-none rtl:rotate-180" />
             <div>
-              <span>Previous Post</span>
+              <span>上一篇</span>
               <div class="text-sm text-accent/85">{prevPost.title}</div>
             </div>
           </a>
@@ -151,7 +223,7 @@ const nextPost =
             class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"
           >
             <div>
-              <span>Next Post</span>
+              <span>下一篇</span>
               <div class="text-sm text-accent/85">{nextPost.title}</div>
             </div>
             <IconChevronRight class="inline-block flex-none rtl:rotate-180" />
@@ -230,7 +302,7 @@ const nextPost =
   /** Attaches copy buttons to code blocks in the document,
    * allowing users to copy code easily. */
   function attachCopyButtons() {
-    const copyButtonLabel = "Copy";
+    const copyButtonLabel = "复制";
     const codeBlocks = Array.from(document.querySelectorAll("pre"));
 
     for (const codeBlock of codeBlocks) {
@@ -269,7 +341,7 @@ const nextPost =
       await navigator.clipboard.writeText(text ?? "");
 
       // visual feedback that task is completed
-      button.innerText = "Copied";
+      button.innerText = "已复制";
 
       setTimeout(() => {
         button.innerText = copyButtonLabel;

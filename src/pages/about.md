@@ -1,17 +1,19 @@
 ---
 layout: ../layouts/AboutLayout.astro
-title: "About"
+title: "关于"
 ---
 
-Hi, I'm **BIGBOBRO**.
+你好，我是 **BIGBOBRO**。
 
-I currently focus on enterprise digital transformation solutions.
+我平时做企业数字化转型相关的解决方案，同时也在真实项目和日常工具里反复试 AI 怎么用才站得住。
 
-This site is where I share ongoing notes about:
+这个站不是方法论产品页，更像一本还在写的个人刊物。我会放这些东西：
 
-- Practical tech implementation and lessons from pitfalls
-- Project retrospectives and reflections
-- Tools, workflows, and productivity methods
-- AI use cases and personal explorations
+- 真实踩坑和复盘
+- 工作流、工具选择，以及“为什么当时这么选”
+- AI 周观察：不是追热点清单，而是试图判断什么在变厚、什么只是噪声
+- 还没想明白、但值得先记下来的判断
 
-If you'd like to connect, feel free to reach me on [GitHub](https://github.com/bigbobro).
+首页的 `Delulu 2 Solulu` 是性格，`BuildFromIdea · 开物成务` 是方向：从想法长到可用的东西。
+
+想交流的话，可以先到 [GitHub](https://github.com/bigbobro)。

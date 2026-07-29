@@ -13,8 +13,16 @@ import { SITE } from "@/config";
 const posts = await getCollection("blog");
 
 const sortedPosts = getSortedPosts(posts);
+const isWeekly = (entry: (typeof sortedPosts)[number]) =>
+  entry.data.tags.includes("weekly-ai-signal");
+
 const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
+const practicePosts = sortedPosts.filter(
+  entry => !entry.data.featured && !isWeekly(entry)
+);
+const weeklyPosts = sortedPosts.filter(isWeekly).slice(0, 3);
+const hasMoreWeekly =
+  sortedPosts.filter(isWeekly).length > weeklyPosts.length;
 ---
 
 <Layout>
@@ -22,7 +30,7 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
   <main id="main-content" data-layout="index" class="app-layout">
     <section id="hero" class:list={["pt-8 pb-6", "border-b border-border"]}>
       <div class="my-4 flex items-baseline justify-between gap-4 sm:my-8">
-        <h1 class="text-4xl font-bold sm:text-5xl">
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
           <span>Delulu</span>
           <span class="mx-1 text-accent">2</span>
           <span>Solulu</span>
@@ -31,24 +39,26 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
           target="_blank"
           href="/rss.xml"
           class="shrink-0"
-          aria-label="rss feed"
-          title="RSS Feed"
+          aria-label="RSS 订阅"
+          title="RSS 订阅"
         >
           <IconRss
             width={20}
             height={20}
             class="scale-125 stroke-accent stroke-3 rtl:-rotate-90"
           />
-          <span class="sr-only">RSS Feed</span>
+          <span class="sr-only">RSS 订阅</span>
         </a>
       </div>
 
-      <p>欢迎来到这里。这个博客暂时不打算装成一套成熟方法论。</p>
-      <p class="mt-2">
+      <p class="leading-relaxed text-foreground/90">
+        欢迎来到这里。这个博客暂时不打算装成一套成熟方法论。
+      </p>
+      <p class="mt-3 leading-relaxed text-foreground/90">
         我会把一些从离谱想法、真实项目和 AI
         工具里长出来的东西放在这里：有的最后成了方案，有的只是暴露了一个更大的坑。
       </p>
-      <p class="mt-2">
+      <p class="mt-3 leading-relaxed text-foreground/90">
         想明白的写，没想明白的也写。区别是，没想明白的不会假装已经想明白。
       </p>
     </section>
@@ -59,10 +69,19 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
           id="featured"
           class:list={[
             "pt-12 pb-6",
-            { "border-b border-border": recentPosts.length > 0 },
+            {
+              "border-b border-border":
+                practicePosts.length > 0 || weeklyPosts.length > 0,
+            },
           ]}
         >
-          <h2 class="text-2xl font-semibold tracking-wide">Pinned</h2>
+          <h2 class="mb-2 flex items-baseline gap-2 text-2xl font-semibold tracking-wide">
+            <span class="font-mono text-xs tracking-widest text-accent">
+              01 /
+            </span>
+            <span>精选</span>
+          </h2>
+          <p class="mb-4 text-sm text-foreground/55">先看这几篇，最能说明我在写什么。</p>
           <ul>
             {featuredPosts.map(data => (
               <Card variant="h3" {...data} />
@@ -73,22 +92,64 @@ const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
     }
 
     {
-      recentPosts.length > 0 && (
-        <section id="recent-posts" class="pt-12 pb-6">
-          <h2 class="text-2xl font-semibold tracking-wide">Latest</h2>
+      practicePosts.length > 0 && (
+        <section
+          id="practice-notes"
+          class:list={[
+            "pt-12 pb-6",
+            { "border-b border-border": weeklyPosts.length > 0 },
+          ]}
+        >
+          <h2 class="mb-2 flex items-baseline gap-2 text-2xl font-semibold tracking-wide">
+            <span class="font-mono text-xs tracking-widest text-accent">
+              02 /
+            </span>
+            <span>实践与复盘</span>
+          </h2>
+          <p class="mb-4 text-sm text-foreground/55">
+            真实项目与工具使用里长出来的笔记。
+          </p>
           <ul>
-            {recentPosts.map(
-              (data, index) =>
-                index < SITE.postPerIndex && <Card variant="h3" {...data} />
-            )}
+            {practicePosts.map(data => (
+              <Card variant="h3" {...data} />
+            ))}
           </ul>
+        </section>
+      )
+    }
+
+    {
+      weeklyPosts.length > 0 && (
+        <section id="weekly-signal" class="pt-12 pb-6">
+          <h2 class="mb-2 flex items-baseline gap-2 text-2xl font-semibold tracking-wide">
+            <span class="font-mono text-xs tracking-widest text-accent">
+              03 /
+            </span>
+            <span>AI 周观察</span>
+          </h2>
+          <p class="mb-4 text-sm text-foreground/55">
+            每周一层信号：什么在变厚，什么只是噪声。
+          </p>
+          <ul>
+            {weeklyPosts.map(data => (
+              <Card variant="h3" {...data} />
+            ))}
+          </ul>
+          {hasMoreWeekly && (
+            <div class="mt-6">
+              <LinkButton href="/tags/weekly-ai-signal/">
+                查看全部周观察
+                <IconArrowRight class="inline-block rtl:-rotate-180" />
+              </LinkButton>
+            </div>
+          )}
         </section>
       )
     }
 
     <div class="my-8 text-center">
       <LinkButton href="/posts/">
-        All
+        全部文章
         <IconArrowRight class="inline-block rtl:-rotate-180" />
       </LinkButton>
     </div>

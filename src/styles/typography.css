@@ -3,21 +3,33 @@
 @layer base {
   /* ===== Override default Tailwind Typography styles ===== */
   .app-prose {
-    @apply prose;
+    @apply prose max-w-none leading-[1.8];
 
     h1,
     h2,
     h3,
     h4,
     th {
-      @apply mb-3 text-foreground;
+      @apply text-foreground;
     }
 
+    h2 {
+      @apply mt-10 mb-4;
+    }
+
+    /* Chinese italic is usually a synthetic skew; prefer weight for hierarchy. */
     h3 {
-      @apply italic;
+      @apply mt-8 mb-3 font-semibold not-italic;
     }
 
-    p,
+    h4 {
+      @apply mt-6 mb-3;
+    }
+
+    p {
+      @apply mb-6 text-foreground leading-[1.8];
+    }
+
     strong,
     ol,
     ul,
@@ -27,16 +39,24 @@
       @apply text-foreground;
     }
 
-    a {
-      @apply wrap-break-word text-foreground decoration-dashed underline-offset-4 hover:text-accent focus-visible:no-underline;
-    }
-
+    ol,
     ul {
-      @apply overflow-x-clip;
+      @apply my-6 overflow-x-clip;
     }
 
     li {
-      @apply marker:text-accent;
+      @apply my-1.5 marker:text-accent;
+    }
+
+    code,
+    kbd,
+    samp,
+    pre {
+      font-family: var(--font-mono);
+    }
+
+    a {
+      @apply wrap-break-word text-foreground decoration-dashed underline-offset-4 hover:text-accent focus-visible:no-underline;
     }
 
     hr {
@@ -75,7 +95,7 @@
     }
 
     blockquote {
-      @apply border-s-accent/80 wrap-break-word opacity-80;
+      @apply my-6 border-s-2 border-s-accent/70 bg-muted/40 py-1 ps-4 pe-3 wrap-break-word text-foreground/85 not-italic;
     }
 
     details {

@@ -3,7 +3,7 @@ author: BigBoBro
 title: "选模型之前，先问自己一个问题"
 pubDatetime: 2026-05-17T00:00:00+08:00
 slug: model-selection-before-choosing
-featured: false
+featured: true
 draft: false
 tags:
   - ai

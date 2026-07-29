@@ -10,11 +10,21 @@ type Props = {
 
 const { variant: Heading = "h2", id, data, filePath } = Astro.props;
 
-const { title, description, ...props } = data;
+const { title, description, tags = [], ...props } = data;
+const isWeeklySignal = tags.includes("weekly-ai-signal");
 ---
 
-<li class="border-b border-border/70 py-6 last:border-b-0">
-  <Datetime class="mb-2 text-foreground/55" {...props} />
+<li class="border-b border-border/60 py-6 last:border-b-0">
+  <div class="mb-2 flex flex-wrap items-center gap-2">
+    <Datetime class="text-foreground/55" {...props} />
+    {
+      isWeeklySignal && (
+        <span class="rounded border border-border px-1.5 py-0.5 text-[11px] leading-none tracking-wide text-foreground/55">
+          周观察
+        </span>
+      )
+    }
+  </div>
   <a
     href={getPath(id, filePath)}
     class:list={[

@@ -26,3 +26,8 @@ pnpm-debug.log*
 # pagefind
 
 public/pagefind
+
+# Local-only author/agent notes.
+# Not part of the public blog site. Not pushed to GitHub (except docs/README.md).
+docs/**
+!docs/README.md
