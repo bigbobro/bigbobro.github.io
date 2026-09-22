@@ -3,7 +3,7 @@
 @layer base {
   /* ===== Override default Tailwind Typography styles ===== */
   .app-prose {
-    @apply prose max-w-none leading-[1.8];
+    @apply prose max-w-none leading-[1.9];
 
     h1,
     h2,
@@ -14,12 +14,13 @@
     }
 
     h2 {
-      @apply mt-10 mb-4;
+      @apply mt-12 mb-5 text-[1.4em] leading-[1.5] font-semibold;
+      letter-spacing: -0.02em;
     }
 
     /* Chinese italic is usually a synthetic skew; prefer weight for hierarchy. */
     h3 {
-      @apply mt-8 mb-3 font-semibold not-italic;
+      @apply mt-8 mb-3 text-[1.15em] leading-[1.6] font-semibold not-italic;
     }
 
     h4 {
@@ -27,7 +28,7 @@
     }
 
     p {
-      @apply mb-6 text-foreground leading-[1.8];
+      @apply mb-6 leading-[1.9] text-foreground;
     }
 
     strong,
@@ -72,13 +73,16 @@
     }
 
     table {
+      font-size: 0.875em;
+      line-height: 1.75;
+
       th,
       td {
-        @apply border border-border p-2;
+        @apply border border-border px-3 py-2.5 align-top;
       }
 
       th {
-        @apply py-1.5;
+        @apply bg-muted/35 font-semibold;
       }
 
       code {
@@ -108,6 +112,72 @@
 
     pre {
       @apply focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-dashed;
+    }
+
+    .heading-link {
+      @apply ms-2 text-accent no-underline;
+      font-size: 0.8em;
+      font-weight: 400;
+      opacity: 0;
+    }
+
+    :is(h2, h3, h4, h5, h6):hover .heading-link,
+    .heading-link:focus-visible {
+      opacity: 1;
+    }
+
+    .table-block {
+      min-width: 0;
+      margin-block: 1.75rem;
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: thin;
+    }
+
+    .table-scroll:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .table-scroll table {
+      width: 100%;
+      min-width: 36rem;
+      margin-block: 0;
+    }
+
+    .table-scroll-hint {
+      margin-block: 0 0.5rem;
+      color: color-mix(in srgb, var(--foreground) 65%, transparent);
+      font-size: 0.75rem;
+      line-height: 1.5;
+      text-align: end;
+    }
+
+    .code-block {
+      position: relative;
+      margin-block: 1.75rem;
+    }
+
+    .code-block pre {
+      margin-block: 0;
+    }
+
+    .copy-code {
+      position: absolute;
+      top: -0.75rem;
+      inset-inline-end: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      background: var(--background);
+      color: var(--foreground);
+      font-size: 0.75rem;
+      font-weight: 500;
+      line-height: 1rem;
     }
   }
 

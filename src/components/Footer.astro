@@ -1,6 +1,7 @@
 ---
 import type { HTMLAttributes } from "astro/types";
-import Socials from "./Socials.astro";
+import IconGitHub from "@/assets/icons/IconGitHub.svg";
+import IconRss from "@/assets/icons/IconRss.svg";
 import { SITE } from "@/config";
 
 const currentYear = new Date().getFullYear();
@@ -13,21 +14,66 @@ const { noMarginTop = false, class: className, ...attrs } = Astro.props;
 ---
 
 <footer
-  class:list={["app-layout", { "mt-auto": !noMarginTop }, className]}
+  class:list={["site-shell", { "mt-auto": !noMarginTop }, className]}
   {...attrs}
 >
-  <div
-    class:list={[
-      "py-6 sm:py-4",
-      "border-t border-border",
-      "flex flex-col items-center justify-between sm:flex-row-reverse",
-    ]}
-  >
-    <Socials />
-    <div class="my-2 flex flex-col items-center whitespace-nowrap sm:flex-row">
-      <span>Copyright &#169; {currentYear} {SITE.title}</span>
-      <span class="hidden sm:inline">&nbsp;·&nbsp;</span>
-      <span class="text-foreground/65">开物成务 · 从想法到方案</span>
-    </div>
+  <div class="footer-inner">
+    <p>&#169; {currentYear} {SITE.title} <span>· {SITE.titleZh}</span></p>
+    <nav class="footer-links" aria-label="订阅与社交链接">
+      <a href="/rss.xml" aria-label="订阅 RSS">
+        <IconRss aria-hidden="true" />
+        <span>RSS</span>
+      </a>
+      <a href={SITE.profile} aria-label="访问 GitHub 主页">
+        <IconGitHub aria-hidden="true" />
+        <span>GitHub</span>
+      </a>
+    </nav>
   </div>
 </footer>
+
+<style>
+  .footer-inner {
+    display: flex;
+    min-height: 5.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border);
+    color: color-mix(in srgb, var(--foreground) 62%, transparent);
+    font-size: 0.8125rem;
+  }
+
+  .footer-inner p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .footer-inner p span {
+    white-space: nowrap;
+  }
+
+  .footer-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .footer-links a:hover {
+    color: var(--accent);
+  }
+
+  .footer-links :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>

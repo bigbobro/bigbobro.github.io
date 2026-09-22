@@ -2,44 +2,122 @@
 import type { CollectionEntry } from "astro:content";
 import { slugifyStr } from "@/utils/slugify";
 import { getPath } from "@/utils/getPath";
+import { getPostPresentation } from "@/utils/getPostPresentation";
 import Datetime from "./Datetime.astro";
 
 type Props = {
   variant?: "h2" | "h3";
+  presentation?: "default" | "featured" | "compact";
 } & CollectionEntry<"blog">;
 
-const { variant: Heading = "h2", id, data, filePath } = Astro.props;
-
-const { title, description, tags = [], ...props } = data;
-const isWeeklySignal = tags.includes("weekly-ai-signal");
+const {
+  variant: Heading = "h2",
+  presentation = "default",
+  id,
+  data,
+  filePath,
+} = Astro.props;
+const { title, week, isWeekly } = getPostPresentation(data);
 ---
 
-<li class="border-b border-border/60 py-6 last:border-b-0">
-  <div class="mb-2 flex flex-wrap items-center gap-2">
-    <Datetime class="text-foreground/55" {...props} />
-    {
-      isWeeklySignal && (
-        <span class="rounded border border-border px-1.5 py-0.5 text-[11px] leading-none tracking-wide text-foreground/55">
-          周观察
-        </span>
-      )
-    }
-  </div>
-  <a
-    href={getPath(id, filePath)}
-    class:list={[
-      "inline-block text-xl leading-snug font-semibold text-foreground transition-colors hover:text-accent",
-      "decoration-dashed underline-offset-4 hover:underline",
-      "focus-visible:no-underline focus-visible:underline-offset-0",
-    ]}
-  >
+<li class:list={["post-card", `post-card--${presentation}`]}>
+  <a href={getPath(id, filePath)} class="post-link">
     <Heading
-      style={{ viewTransitionName: slugifyStr(title.replaceAll(".", "-")) }}
+      class="post-title"
+      style={{
+        viewTransitionName: slugifyStr(data.title.replaceAll(".", "-")),
+      }}
     >
       {title}
     </Heading>
   </a>
-  <p class="mt-2 text-sm leading-7 text-foreground/75 sm:text-base">
-    {description}
-  </p>
+  <div class="post-meta">
+    {
+      isWeekly && (
+        <span class="post-series">AI 周观察{week && ` · ${week}`}</span>
+      )
+    }
+    <Datetime {...data} />
+  </div>
+  {
+    presentation !== "compact" && (
+      <p class="post-description">{data.description}</p>
+    )
+  }
 </li>
+
+<style>
+  .post-card {
+    min-width: 0;
+    padding-block: 1.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .post-card:first-child {
+    padding-top: 0;
+  }
+  .post-card:last-child {
+    border-bottom: 0;
+  }
+  .post-link {
+    display: inline-block;
+    color: var(--foreground);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    transition: color 150ms ease;
+  }
+  .post-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .post-title {
+    font-size: 1.375rem;
+    font-weight: 650;
+    line-height: 1.55;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+  }
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.85rem;
+    margin-top: 0.65rem;
+    color: color-mix(in srgb, var(--foreground) 64%, var(--background));
+    font-size: 0.8125rem;
+  }
+  .post-series {
+    color: var(--accent);
+  }
+  .post-description {
+    margin-top: 0.65rem;
+    color: color-mix(in srgb, var(--foreground) 76%, var(--background));
+    font-size: 0.9375rem;
+    line-height: 1.85;
+    text-wrap: pretty;
+  }
+  .post-card--featured .post-title {
+    font-size: 1.625rem;
+    line-height: 1.5;
+  }
+  .post-card--compact {
+    padding-block: 1rem;
+  }
+  .post-card--compact .post-title {
+    font-size: 1.0625rem;
+    font-weight: 550;
+  }
+  @media (max-width: 639px) {
+    .post-card {
+      padding-block: 1.35rem;
+    }
+    .post-title,
+    .post-card--featured .post-title {
+      font-size: 1.1875rem;
+      line-height: 1.6;
+    }
+    .post-description {
+      font-size: 0.875rem;
+    }
+  }
+</style>

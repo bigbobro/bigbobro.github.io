@@ -10,6 +10,7 @@ html[data-theme="light"] {
   --accent: #4d6b57;
   --muted: #e9e4da;
   --border: #e4ded2;
+  --font-brand: Georgia, "Times New Roman", serif;
 }
 
 html[data-theme="dark"] {
@@ -26,8 +27,8 @@ html[data-theme="dark"] {
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", "PingFang SC",
     "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   --font-mono:
-    ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono",
-    monospace;
+    ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
@@ -46,6 +47,7 @@ html[data-theme="dark"] {
   }
   body {
     @apply flex min-h-svh flex-col bg-background font-app text-foreground selection:bg-accent/75 selection:text-background;
+    -webkit-font-smoothing: antialiased;
   }
   a,
   button {
@@ -62,11 +64,53 @@ html[data-theme="dark"] {
 }
 
 @utility app-layout {
-  @apply mx-auto w-full max-w-app px-4;
+  @apply mx-auto w-full max-w-app px-5 sm:px-6;
+}
+
+@utility site-shell {
+  @apply mx-auto w-full px-5 sm:px-8;
+  max-width: 76rem;
 }
 
 .active-nav {
-  @apply underline decoration-wavy decoration-2 underline-offset-8;
+  @apply text-accent underline decoration-1 underline-offset-8;
+}
+
+.section-heading {
+  width: fit-content;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px solid var(--accent);
+  font-size: 1.375rem;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: 0.35rem;
+  color: var(--accent);
+  font-size: 0.9375rem;
+  font-weight: 550;
+  text-underline-offset: 0.3em;
+}
+
+.text-link:hover {
+  text-decoration: underline;
+}
+
+.text-link svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 /* Source: https://piccalil.li/blog/a-more-modern-css-reset/ */

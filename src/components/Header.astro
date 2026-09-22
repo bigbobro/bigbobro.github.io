@@ -5,7 +5,6 @@ import IconSearch from "@/assets/icons/IconSearch.svg";
 import IconArchive from "@/assets/icons/IconArchive.svg";
 import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
 import IconMenuDeep from "@/assets/icons/IconMenuDeep.svg";
-import LinkButton from "./LinkButton.astro";
 import { SITE } from "@/config";
 
 const { pathname } = Astro.url;
@@ -25,117 +24,94 @@ const isActive = (path: string) => {
 <a
   id="skip-to-content"
   href="#main-content"
-  class="absolute start-16 -top-full z-50 bg-background px-3 py-2 text-accent backdrop-blur-lg transition-all focus:top-4"
+  class="absolute start-5 -top-full z-50 bg-background px-3 py-2 text-accent transition-all focus:top-4"
 >
   跳到正文
 </a>
 
-<header
-  class="app-layout flex flex-col items-center justify-between sm:flex-row"
->
-  <div
-    id="top-nav-wrap"
-    class:list={[
-      "py-4 sm:py-6",
-      "border-b border-border",
-      "relative w-full bg-background",
-      "flex items-baseline justify-between sm:items-center",
-    ]}
-  >
-    <a
-      href="/"
-      class="absolute inline-flex items-baseline gap-1.5 py-1 text-lg leading-8 font-semibold whitespace-nowrap sm:static sm:my-auto sm:text-2xl sm:leading-none"
-    >
-      <span>{SITE.title}</span>
-      <span class="text-foreground/35">·</span>
-      <span class="text-sm font-normal text-foreground/60 sm:text-lg">
-        {SITE.titleZh}
-      </span>
+<header class="site-header site-shell">
+  <div id="top-nav-wrap" class="header-inner">
+    <a href="/" class="site-brand" aria-label={`${SITE.fullTitle}，首页`}>
+      <span class="brand-en">{SITE.title}</span>
+      <span class="brand-divider" aria-hidden="true">·</span>
+      <span class="brand-zh">{SITE.titleZh}</span>
     </a>
-    <nav
-      id="nav-menu"
-      class="flex w-full flex-col items-center sm:ms-2 sm:flex-row sm:justify-end sm:space-x-4 sm:py-0"
-    >
+    <nav id="nav-menu" class="site-nav" aria-label="主导航">
       <button
         id="menu-btn"
-        class="focus-outline self-end p-2 sm:hidden"
+        type="button"
+        class="menu-toggle"
         aria-label="打开菜单"
         aria-expanded="false"
         aria-controls="menu-items"
       >
-        <IconX id="close-icon" class="hidden" />
-        <IconMenuDeep id="menu-icon" />
+        <IconX class="menu-close-icon" aria-hidden="true" />
+        <IconMenuDeep class="menu-open-icon" aria-hidden="true" />
       </button>
-      <ul
-        id="menu-items"
-        class:list={[
-          "mt-4 grid w-44 grid-cols-2 place-content-center gap-2",
-          "[&>li>a]:block [&>li>a]:px-4 [&>li>a]:py-3 [&>li>a]:text-center [&>li>a]:font-medium [&>li>a]:hover:text-accent sm:[&>li>a]:px-2 sm:[&>li>a]:py-1",
-          "hidden",
-          "sm:mt-0 sm:flex sm:w-auto sm:gap-x-5 sm:gap-y-0",
-        ]}
-      >
-        <li class="col-span-2">
-          <a href="/posts" class:list={{ "active-nav": isActive("/posts") }}>
+      <ul id="menu-items" class="menu-items">
+        <li>
+          <a
+            href="/posts"
+            aria-current={isActive("/posts") ? "page" : undefined}
+          >
             文章
           </a>
         </li>
-        <li class="col-span-2">
-          <a href="/tags" class:list={{ "active-nav": isActive("/tags") }}>
+        <li>
+          <a href="/tags" aria-current={isActive("/tags") ? "page" : undefined}>
             标签
           </a>
         </li>
-        <li class="col-span-2">
-          <a href="/about" class:list={{ "active-nav": isActive("/about") }}>
+        <li>
+          <a
+            href="/about"
+            aria-current={isActive("/about") ? "page" : undefined}
+          >
             关于
           </a>
         </li>
         {
           SITE.showArchives && (
-            <li class="col-span-2">
-              <LinkButton
+            <li>
+              <a
                 href="/archives"
-                class:list={[
-                  "focus-outline flex justify-center p-3 sm:p-1",
-                  {
-                    "active-nav [&>svg]:stroke-accent": isActive("/archives"),
-                  },
-                ]}
+                class="nav-icon-link"
+                aria-current={isActive("/archives") ? "page" : undefined}
                 title="归档"
                 aria-label="归档"
               >
-                <IconArchive class="hidden sm:inline-block" />
-                <span class="sm:sr-only">归档</span>
-              </LinkButton>
+                <IconArchive aria-hidden="true" />
+                <span class="nav-icon-label">归档</span>
+              </a>
             </li>
           )
         }
-        <li class="col-span-1 flex items-center justify-center">
-          <LinkButton
+        <li>
+          <a
             href="/search"
-            class:list={[
-              "focus-outline flex p-3 sm:p-1",
-              { "[&>svg]:stroke-accent": isActive("/search") },
-            ]}
+            class="nav-icon-link"
+            aria-current={isActive("/search") ? "page" : undefined}
             title="搜索"
             aria-label="搜索"
           >
-            <IconSearch />
-            <span class="sr-only">搜索</span>
-          </LinkButton>
+            <IconSearch aria-hidden="true" />
+            <span class="nav-icon-label">搜索</span>
+          </a>
         </li>
         {
           SITE.lightAndDarkMode && (
-            <li class="col-span-1 flex items-center justify-center">
+            <li class="theme-control">
               <button
                 id="theme-btn"
-                class="focus-outline relative size-12 p-4 sm:size-8 hover:[&>svg]:stroke-accent"
+                type="button"
+                class="theme-toggle"
                 title="切换明暗主题"
                 aria-label="切换明暗主题"
                 aria-live="polite"
               >
-                <IconMoon class="absolute top-[50%] left-[50%] -translate-[50%] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                <IconSunHigh class="absolute top-[50%] left-[50%] -translate-[50%] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                <IconMoon class="theme-moon" aria-hidden="true" />
+                <IconSunHigh class="theme-sun" aria-hidden="true" />
+                <span class="nav-icon-label">主题</span>
               </button>
             </li>
           )
@@ -145,29 +121,208 @@ const isActive = (path: string) => {
   </div>
 </header>
 
-<script>
-  function toggleNav() {
-    const menuBtn = document.querySelector("#menu-btn");
-    const menuItems = document.querySelector("#menu-items");
-    const menuIcon = document.querySelector("#menu-icon");
-    const closeIcon = document.querySelector("#close-icon");
+<style>
+  .header-inner {
+    display: flex;
+    min-height: 4.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
 
-    if (!menuBtn || !menuItems || !menuIcon || !closeIcon) return;
+  .site-brand {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .brand-en {
+    font-family: var(--font-brand);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+
+  .brand-divider {
+    color: color-mix(in srgb, var(--foreground) 35%, transparent);
+  }
+
+  .brand-zh {
+    color: color-mix(in srgb, var(--foreground) 65%, transparent);
+    font-size: 0.8rem;
+  }
+
+  .site-nav {
+    display: contents;
+  }
+
+  .menu-toggle,
+  .theme-toggle {
+    display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .menu-toggle :global(svg),
+  .menu-items :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .menu-toggle :global(.menu-close-icon),
+  .menu-toggle[aria-expanded="true"] :global(.menu-open-icon) {
+    display: none;
+  }
+
+  .menu-toggle[aria-expanded="true"] :global(.menu-close-icon) {
+    display: block;
+  }
+
+  .menu-items {
+    display: none;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--border);
+    list-style: none;
+  }
+
+  .menu-items.is-open {
+    display: grid;
+  }
+
+  .menu-items li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-items a,
+  .theme-toggle {
+    display: inline-flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .menu-items a:hover,
+  .menu-items a[aria-current],
+  .theme-toggle:hover {
+    color: var(--accent);
+  }
+
+  .menu-items a[aria-current] {
+    text-decoration: underline;
+    text-underline-offset: 0.4rem;
+  }
+
+  .theme-toggle :global(.theme-sun),
+  :global([data-theme="dark"]) .theme-toggle :global(.theme-moon) {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .theme-toggle :global(.theme-sun) {
+    display: block;
+  }
+
+  @media (min-width: 48rem) {
+    .header-inner {
+      min-height: 5.25rem;
+      flex-wrap: nowrap;
+      gap: 1rem;
+    }
+
+    .site-brand {
+      gap: 0.5rem;
+    }
+
+    .brand-en {
+      font-size: 1.55rem;
+    }
+
+    .brand-zh {
+      font-size: 0.9375rem;
+    }
+
+    .site-nav,
+    .menu-items,
+    .menu-items.is-open {
+      display: flex;
+      width: auto;
+      align-items: center;
+    }
+
+    .menu-toggle,
+    .nav-icon-label {
+      display: none;
+    }
+
+    .menu-items {
+      gap: 0.5rem;
+      padding: 0;
+      border-top: 0;
+    }
+
+    .theme-control {
+      margin-left: 0.4rem;
+      padding-left: 0.6rem;
+      border-left: 1px solid var(--border);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .menu-items {
+      gap: 1rem;
+    }
+  }
+</style>
+
+<script>
+  function setupNavigation() {
+    const nav = document.querySelector<HTMLElement>("#nav-menu");
+    const menuBtn = document.querySelector<HTMLButtonElement>("#menu-btn");
+    const menuItems = document.querySelector<HTMLElement>("#menu-items");
+
+    if (!nav || !menuBtn || !menuItems) return;
+
+    const setOpen = (open: boolean) => {
+      menuBtn.setAttribute("aria-expanded", String(open));
+      menuBtn.setAttribute("aria-label", open ? "关闭菜单" : "打开菜单");
+      menuItems.classList.toggle("is-open", open);
+    };
 
     menuBtn.addEventListener("click", () => {
-      const openMenu = menuBtn.getAttribute("aria-expanded") === "true";
+      setOpen(menuBtn.getAttribute("aria-expanded") !== "true");
+    });
 
-      menuBtn.setAttribute("aria-expanded", openMenu ? "false" : "true");
-      menuBtn.setAttribute("aria-label", openMenu ? "打开菜单" : "关闭菜单");
-
-      menuItems.classList.toggle("hidden");
-      menuIcon.classList.toggle("hidden");
-      closeIcon.classList.toggle("hidden");
+    nav.addEventListener("keydown", event => {
+      if (
+        event.key === "Escape" &&
+        menuBtn.getAttribute("aria-expanded") === "true"
+      ) {
+        event.preventDefault();
+        setOpen(false);
+        menuBtn.focus();
+      }
     });
   }
 
-  toggleNav();
+  setupNavigation();
 
   // Runs on view transitions navigation
-  document.addEventListener("astro:after-swap", toggleNav);
+  document.addEventListener("astro:after-swap", setupNavigation);
 </script>

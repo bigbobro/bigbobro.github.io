@@ -32,7 +32,12 @@ function setPreference(): void {
 function reflectPreference(): void {
   document.firstElementChild?.setAttribute("data-theme", themeValue);
 
-  document.querySelector("#theme-btn")?.setAttribute("aria-label", themeValue);
+  document
+    .querySelector("#theme-btn")
+    ?.setAttribute(
+      "aria-label",
+      themeValue === LIGHT ? "切换到深色主题" : "切换到浅色主题"
+    );
 
   // Get a reference to the body element
   const body = document.body;

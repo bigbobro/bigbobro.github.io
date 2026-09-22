@@ -9,7 +9,9 @@ import EditPost from "@/components/EditPost.astro";
 import ShareLinks from "@/components/ShareLinks.astro";
 import BackButton from "@/components/BackButton.astro";
 import BackToTopButton from "@/components/BackToTopButton.astro";
+import TableOfContents from "@/components/TableOfContents.astro";
 import { getPath } from "@/utils/getPath";
+import { getPostPresentation } from "@/utils/getPostPresentation";
 import { slugifyStr } from "@/utils/slugify";
 import IconChevronLeft from "@/assets/icons/IconChevronLeft.svg";
 import IconChevronRight from "@/assets/icons/IconChevronRight.svg";
@@ -35,7 +37,10 @@ const {
   hideEditPost,
 } = post.data;
 
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+const sections = headings.filter(heading => heading.depth === 2);
+const showTableOfContents = sections.length >= 3;
+const presentation = getPostPresentation(post.data);
 
 let ogImageUrl: string | undefined;
 
@@ -67,7 +72,7 @@ const layoutProps = {
   scrollSmooth: true,
 };
 
-const isWeeklySignal = tags.includes("weekly-ai-signal");
+const isWeeklySignal = presentation.isWeekly;
 const seriesLabel = isWeeklySignal ? "AI 周观察" : "实践复盘";
 
 /* ========== Prev/Next Posts ========== */
@@ -80,9 +85,9 @@ const allPosts = posts.map(({ data: { title }, id, filePath }) => ({
 
 const currentPostIndex = allPosts.findIndex(a => a.id === post.id);
 
-const prevPost = currentPostIndex !== 0 ? allPosts[currentPostIndex - 1] : null;
+const prevPost = currentPostIndex > 0 ? allPosts[currentPostIndex - 1] : null;
 const nextPost =
-  currentPostIndex !== allPosts.length - 1
+  currentPostIndex >= 0 && currentPostIndex < allPosts.length - 1
     ? allPosts[currentPostIndex + 1]
     : null;
 
@@ -99,259 +104,526 @@ const prevWeeklyPost =
     : null;
 const nextWeeklyPost =
   isWeeklySignal && weeklyIndex > 0 ? weeklyPosts[weeklyIndex - 1] : null;
+
+const previousArticle = isWeeklySignal ? prevWeeklyPost : prevPost;
+const nextArticle = isWeeklySignal ? nextWeeklyPost : nextPost;
 ---
 
 <Layout {...layoutProps}>
   <Header />
-  <BackButton />
   <main
     id="main-content"
-    class:list={["app-layout pb-12", { "mt-8": !SITE.showBackButton }]}
+    class:list={["post-layout site-shell", { "has-toc": showTableOfContents }]}
     data-pagefind-body
   >
-    <div class="mb-3">
-      <span
-        class="inline-block rounded border border-border px-2 py-0.5 font-mono text-[11px] tracking-wide text-accent"
-      >
-        {seriesLabel}
-      </span>
-    </div>
-    <h1
-      transition:name={slugifyStr(title.replaceAll(".", "-"))}
-      class="inline-block text-2xl font-bold text-accent sm:text-3xl"
-    >
-      {title}
-    </h1>
-    <div class="my-2 flex flex-wrap items-center gap-2">
-      <Datetime {pubDatetime} {modDatetime} {timezone} size="lg" />
-      <span
-        aria-hidden="true"
-        class:list={[
-          "max-sm:hidden",
-          { hidden: !SITE.editPost.enabled || hideEditPost },
-        ]}>|</span
-      >
-      <EditPost {hideEditPost} {post} class="max-sm:hidden" />
-    </div>
-    {
-      description && (
-        <p
-          class:list={[
-            "mt-5 mb-2 max-w-app border-s-2 border-accent/45 ps-4",
-            "text-base leading-relaxed text-foreground/75 sm:text-lg",
-          ]}
-        >
-          {description}
+    <div class="post-main">
+      <div class="post-back" data-pagefind-ignore>
+        <BackButton />
+      </div>
+      <header class="post-header">
+        <p class="post-eyebrow">
+          <span>{seriesLabel}</span>
+          {
+            presentation.week && (
+              <span class="post-week">{presentation.week}</span>
+            )
+          }
         </p>
-      )
-    }
-    <article
-      id="article"
-      class="app-prose mt-8 w-full max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
-    >
-      <Content />
-    </article>
-
-    <hr class="my-8 border-dashed" />
-
-    <EditPost class="sm:hidden" {hideEditPost} {post} />
-
-    <ul class="mt-4 mb-8 flex flex-wrap gap-4 sm:my-8">
-      {tags.map(tag => <Tag tag={slugifyStr(tag)} tagName={tag} size="sm" />)}
-    </ul>
-
-    <BackToTopButton />
-
-    <ShareLinks />
-
-    <hr class="my-6 border-dashed" />
-
-    {
-      isWeeklySignal && (prevWeeklyPost || nextWeeklyPost) && (
-        <div
-          data-pagefind-ignore
-          class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2"
+        <h1
+          transition:name={slugifyStr(title.replaceAll(".", "-"))}
+          data-pagefind-meta={`title:${title}`}
         >
-          {prevWeeklyPost && (
-            <a
-              href={getPath(prevWeeklyPost.id, prevWeeklyPost.filePath)}
-              class="flex w-full gap-1 hover:opacity-75"
-            >
-              <IconChevronLeft class="inline-block flex-none rtl:rotate-180" />
-              <div>
-                <span class="text-sm text-foreground/60">上一期周观察</span>
-                <div class="text-sm text-accent/85">{prevWeeklyPost.title}</div>
-              </div>
-            </a>
-          )}
-          {nextWeeklyPost && (
-            <a
-              href={getPath(nextWeeklyPost.id, nextWeeklyPost.filePath)}
-              class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"
-            >
-              <div>
-                <span class="text-sm text-foreground/60">下一期周观察</span>
-                <div class="text-sm text-accent/85">{nextWeeklyPost.title}</div>
-              </div>
-              <IconChevronRight class="inline-block flex-none rtl:rotate-180" />
-            </a>
-          )}
+          {
+            presentation.title
+              .split(/(?<=，)/u)
+              .map(phrase => <span class="headline-phrase">{phrase}</span>)
+          }
+        </h1>
+        <div class="post-meta">
+          <Datetime {pubDatetime} {modDatetime} {timezone} />
+          <EditPost {hideEditPost} {post} class="max-sm:hidden" />
         </div>
+        {description && <p class="post-deck">{description}</p>}
+      </header>
+
+      {
+        showTableOfContents && (
+          <TableOfContents headings={sections} kind="mobile" />
+        )
+      }
+
+      <article
+        id="article"
+        class="app-prose post-prose prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"
+      >
+        <Content />
+      </article>
+
+      <footer class="post-footer" data-pagefind-ignore>
+        <EditPost class="sm:hidden" {hideEditPost} {post} />
+        <ul class="post-tags">
+          {
+            tags.map(tag => (
+              <Tag tag={slugifyStr(tag)} tagName={tag} size="sm" />
+            ))
+          }
+        </ul>
+
+        <div class="post-actions">
+          <ShareLinks />
+          <BackToTopButton />
+        </div>
+
+        {
+          (previousArticle || nextArticle) && (
+            <nav
+              class="post-neighbors"
+              aria-label={isWeeklySignal ? "周观察系列" : "相邻文章"}
+            >
+              {previousArticle && (
+                <a
+                  href={getPath(previousArticle.id, previousArticle.filePath)}
+                  class="post-neighbor"
+                >
+                  <IconChevronLeft class="size-5 flex-none rtl:rotate-180" />
+                  <div>
+                    <span>{isWeeklySignal ? "上一期周观察" : "上一篇"}</span>
+                    <p>{previousArticle.title}</p>
+                  </div>
+                </a>
+              )}
+              {nextArticle && (
+                <a
+                  href={getPath(nextArticle.id, nextArticle.filePath)}
+                  class="post-neighbor post-neighbor-next"
+                >
+                  <div>
+                    <span>{isWeeklySignal ? "下一期周观察" : "下一篇"}</span>
+                    <p>{nextArticle.title}</p>
+                  </div>
+                  <IconChevronRight class="size-5 flex-none rtl:rotate-180" />
+                </a>
+              )}
+            </nav>
+          )
+        }
+      </footer>
+    </div>
+    {
+      showTableOfContents && (
+        <aside class="post-sidebar" data-pagefind-ignore>
+          <TableOfContents headings={sections} kind="desktop" />
+        </aside>
       )
     }
-
-    <!-- Previous/Next Post Buttons -->
-    <div data-pagefind-ignore class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-      {
-        prevPost && (
-          <a
-            href={getPath(prevPost.id, prevPost.filePath)}
-            class="flex w-full gap-1 hover:opacity-75"
-          >
-            <IconChevronLeft class="inline-block flex-none rtl:rotate-180" />
-            <div>
-              <span>上一篇</span>
-              <div class="text-sm text-accent/85">{prevPost.title}</div>
-            </div>
-          </a>
-        )
-      }
-      {
-        nextPost && (
-          <a
-            href={getPath(nextPost.id, nextPost.filePath)}
-            class="flex w-full justify-end gap-1 text-end hover:opacity-75 sm:col-start-2"
-          >
-            <div>
-              <span>下一篇</span>
-              <div class="text-sm text-accent/85">{nextPost.title}</div>
-            </div>
-            <IconChevronRight class="inline-block flex-none rtl:rotate-180" />
-          </a>
-        )
-      }
-    </div>
   </main>
+  <div class="reading-progress" aria-hidden="true" data-pagefind-ignore>
+    <div id="reading-progress-bar"></div>
+  </div>
   <Footer />
 </Layout>
 
-<script is:inline data-astro-rerun>
-  /** Create a progress indicator
-   *  at the top */
-  function createProgressBar() {
-    // Create the main container div
-    const progressContainer = document.createElement("div");
-    progressContainer.className =
-      "progress-container fixed top-0 z-10 h-1 w-full bg-background";
-
-    // Create the progress bar div
-    const progressBar = document.createElement("div");
-    progressBar.className = "progress-bar h-1 w-0 bg-accent";
-    progressBar.id = "myBar";
-
-    // Append the progress bar to the progress container
-    progressContainer.appendChild(progressBar);
-
-    // Append the progress container to the document body or any other desired parent element
-    document.body.appendChild(progressContainer);
+<style>
+  .post-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 45rem);
+    justify-content: center;
+    padding-bottom: 5rem;
   }
-  createProgressBar();
 
-  /** Update the progress bar
-   *  when user scrolls */
-  function updateScrollProgress() {
-    document.addEventListener("scroll", () => {
-      const winScroll =
-        document.body.scrollTop || document.documentElement.scrollTop;
-      const height =
-        document.documentElement.scrollHeight -
-        document.documentElement.clientHeight;
-      const scrolled = (winScroll / height) * 100;
-      if (document) {
-        const myBar = document.getElementById("myBar");
-        if (myBar) {
-          myBar.style.width = scrolled + "%";
+  .post-main {
+    min-width: 0;
+  }
+
+  .post-back :global(.app-layout) {
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  .post-back :global(#back-button) {
+    margin-block: 2rem 1.75rem;
+    font-size: 0.8125rem;
+    color: color-mix(in srgb, var(--foreground) 65%, transparent);
+  }
+
+  .post-header {
+    margin-top: 0.75rem;
+    margin-bottom: 2.75rem;
+  }
+
+  .post-eyebrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    align-items: center;
+    margin-block: 0 1.125rem;
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+  }
+
+  .post-week {
+    padding-inline-start: 0.875rem;
+    border-inline-start: 1px solid var(--border);
+    color: color-mix(in srgb, var(--foreground) 65%, transparent);
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  .post-header h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 3.25vw, 2.75rem);
+    font-weight: 650;
+    line-height: 1.4;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .headline-phrase {
+    display: inline-block;
+    max-width: 100%;
+    text-wrap: balance;
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.375rem;
+    font-size: 0.8125rem;
+  }
+
+  .post-deck {
+    margin-block: 1.75rem 0;
+    padding-block: 1.5rem 0;
+    border-top: 1px solid var(--border);
+    color: color-mix(in srgb, var(--foreground) 72%, transparent);
+    font-size: 1.0625rem;
+    line-height: 1.85;
+  }
+
+  .post-sidebar {
+    display: none;
+  }
+
+  .post-prose {
+    width: 100%;
+    font-size: 1.0625rem;
+    line-height: 1.9;
+  }
+
+  .post-footer {
+    margin-top: 3.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .post-tags :global(a) {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--border);
+    color: color-mix(in srgb, var(--foreground) 65%, transparent);
+  }
+
+  .post-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    font-size: 0.8125rem;
+  }
+
+  .post-actions > :global(div) {
+    align-items: flex-start;
+  }
+
+  .post-neighbors {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-neighbor {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    transition: color 150ms ease;
+  }
+
+  .post-neighbor span {
+    color: color-mix(in srgb, var(--foreground) 65%, transparent);
+    font-size: 0.75rem;
+  }
+
+  .post-neighbor p {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+
+  .post-neighbor:hover {
+    color: var(--accent);
+  }
+
+  .post-neighbor-next {
+    grid-column: 2;
+    justify-content: flex-end;
+    text-align: end;
+  }
+
+  .reading-progress {
+    position: fixed;
+    z-index: 50;
+    inset: 0 0 auto;
+    height: 3px;
+    pointer-events: none;
+  }
+
+  #reading-progress-bar {
+    width: 100%;
+    height: 100%;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  @media (min-width: 1100px) {
+    .post-layout.has-toc {
+      grid-template-columns: minmax(0, 45rem) 12.5rem;
+      column-gap: 4rem;
+    }
+
+    .post-sidebar {
+      display: block;
+      position: sticky;
+      top: 3rem;
+      align-self: start;
+      margin-top: 5.75rem;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .post-layout {
+      padding-bottom: 3rem;
+    }
+
+    .post-back :global(#back-button) {
+      margin-block: 1.25rem 0.875rem;
+    }
+
+    .post-header {
+      margin-bottom: 1.75rem;
+    }
+
+    .post-eyebrow {
+      margin-bottom: 0.75rem;
+      font-size: 0.6875rem;
+    }
+
+    .post-header h1 {
+      line-height: 1.45;
+      letter-spacing: -0.025em;
+    }
+
+    .post-meta {
+      margin-top: 1rem;
+    }
+
+    .post-deck {
+      margin-top: 1.25rem;
+      padding-top: 1.125rem;
+      font-size: 0.9375rem;
+    }
+
+    .post-prose {
+      font-size: 1rem;
+    }
+
+    .post-neighbors {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+
+    .post-neighbor-next {
+      grid-column: 1;
+    }
+  }
+</style>
+
+<script>
+  let disposeArticle: (() => void) | undefined;
+
+  function initializeArticle() {
+    disposeArticle?.();
+    const article = document.querySelector<HTMLElement>("#article");
+    if (!article) return;
+
+    const controller = new AbortController();
+    const { signal } = controller;
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+    let frame = 0;
+
+    // Keep section permalinks inside the article, excluding the table of contents.
+    for (const heading of article.querySelectorAll("h2, h3, h4, h5, h6")) {
+      if (!heading.id || heading.querySelector(".heading-link")) continue;
+      const link = document.createElement("a");
+      link.className = "heading-link";
+      link.href = `#${encodeURIComponent(heading.id)}`;
+      link.setAttribute("aria-label", `链接到：${heading.textContent}`);
+      link.dataset.pagefindIgnore = "";
+      const mark = document.createElement("span");
+      mark.ariaHidden = "true";
+      mark.textContent = "#";
+      link.append(mark);
+      heading.append(link);
+    }
+
+    // Wrap tables instead of changing their display role, preserving table semantics.
+    const tables = Array.from(article.querySelectorAll("table"));
+    const tableRegions = tables.map((table, index) => {
+      let region = table.closest<HTMLDivElement>(".table-scroll");
+      if (!region) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-block";
+        region = document.createElement("div");
+        region.className = "table-scroll";
+        region.setAttribute("role", "region");
+        region.setAttribute(
+          "aria-label",
+          table.caption?.textContent || `表格 ${index + 1}`
+        );
+        const hint = document.createElement("p");
+        hint.className = "table-scroll-hint";
+        hint.id = `table-scroll-hint-${index + 1}`;
+        hint.textContent = "左右滑动查看完整表格";
+        hint.dataset.pagefindIgnore = "";
+        hint.hidden = true;
+        table.before(wrapper);
+        wrapper.append(hint, region);
+        region.append(table);
+      }
+      return region;
+    });
+
+    function updateTableOverflow() {
+      for (const region of tableRegions) {
+        const hint =
+          region.parentElement?.querySelector<HTMLElement>(
+            ".table-scroll-hint"
+          );
+        const overflow = region.scrollWidth > region.clientWidth + 1;
+        if (hint) hint.hidden = !overflow;
+        if (overflow) {
+          region.tabIndex = 0;
+          if (hint) region.setAttribute("aria-describedby", hint.id);
+        } else {
+          region.removeAttribute("tabindex");
+          region.removeAttribute("aria-describedby");
         }
       }
-    });
-  }
-  updateScrollProgress();
+    }
 
-  /** Attaches links to headings in the document,
-   *  allowing sharing of sections easily */
-  function addHeadingLinks() {
-    const headings = Array.from(
-      document.querySelectorAll("h2, h3, h4, h5, h6")
+    const resizeObserver = new ResizeObserver(updateTableOverflow);
+    tableRegions.forEach(region => resizeObserver.observe(region));
+    updateTableOverflow();
+
+    for (const codeBlock of article.querySelectorAll("pre")) {
+      let wrapper = codeBlock.closest<HTMLDivElement>(".code-block");
+      if (!wrapper) {
+        wrapper = document.createElement("div");
+        wrapper.className = "code-block";
+        codeBlock.before(wrapper);
+        wrapper.append(codeBlock);
+      }
+      let button = wrapper.querySelector<HTMLButtonElement>(".copy-code");
+      if (!button) {
+        button = document.createElement("button");
+        button.className = "copy-code";
+        button.type = "button";
+        button.textContent = "复制";
+        button.setAttribute("aria-label", "复制代码");
+        button.setAttribute("aria-live", "polite");
+        button.dataset.pagefindIgnore = "";
+        wrapper.append(button);
+        codeBlock.tabIndex = 0;
+      }
+      const copyButton = button;
+      copyButton.addEventListener(
+        "click",
+        async () => {
+          try {
+            await navigator.clipboard.writeText(
+              codeBlock.querySelector("code")?.innerText ?? ""
+            );
+            if (signal.aborted) return;
+            copyButton.textContent = "已复制";
+          } catch {
+            if (signal.aborted) return;
+            copyButton.textContent = "复制失败";
+          }
+          const timer = setTimeout(() => {
+            copyButton.textContent = "复制";
+            timers.delete(timer);
+          }, 1600);
+          timers.add(timer);
+        },
+        { signal }
+      );
+    }
+
+    const progress = document.querySelector<HTMLElement>(
+      "#reading-progress-bar"
     );
-    for (const heading of headings) {
-      heading.classList.add("group");
-      const link = document.createElement("a");
-      link.className =
-        "heading-link ms-2 no-underline opacity-75 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100";
-      link.href = "#" + heading.id;
-
-      const span = document.createElement("span");
-      span.ariaHidden = "true";
-      span.innerText = "#";
-      link.appendChild(span);
-      heading.appendChild(link);
+    function updateProgress() {
+      frame = 0;
+      if (!progress) return;
+      const root = document.documentElement;
+      const distance = root.scrollHeight - root.clientHeight;
+      const fraction =
+        distance > 0 ? Math.min(1, Math.max(0, window.scrollY / distance)) : 0;
+      progress.style.transform = `scaleX(${fraction})`;
     }
+
+    function scheduleProgress() {
+      if (!frame) frame = requestAnimationFrame(updateProgress);
+    }
+
+    document.addEventListener("scroll", scheduleProgress, {
+      passive: true,
+      signal,
+    });
+    window.addEventListener("resize", scheduleProgress, {
+      passive: true,
+      signal,
+    });
+    updateProgress();
+
+    disposeArticle = () => {
+      controller.abort();
+      resizeObserver.disconnect();
+      cancelAnimationFrame(frame);
+      timers.forEach(timer => clearTimeout(timer));
+      disposeArticle = undefined;
+    };
   }
-  addHeadingLinks();
 
-  /** Attaches copy buttons to code blocks in the document,
-   * allowing users to copy code easily. */
-  function attachCopyButtons() {
-    const copyButtonLabel = "复制";
-    const codeBlocks = Array.from(document.querySelectorAll("pre"));
-
-    for (const codeBlock of codeBlocks) {
-      const wrapper = document.createElement("div");
-      wrapper.style.position = "relative";
-
-      // Check if --file-name-offset custom property exists
-      const computedStyle = getComputedStyle(codeBlock);
-      const hasFileNameOffset =
-        computedStyle.getPropertyValue("--file-name-offset").trim() !== "";
-
-      // Determine the top positioning class
-      const topClass = hasFileNameOffset
-        ? "top-(--file-name-offset)"
-        : "-top-3";
-
-      const copyButton = document.createElement("button");
-      copyButton.className = `copy-code absolute end-3 ${topClass} rounded bg-muted border border-muted px-2 py-1 text-xs leading-4 text-foreground font-medium`;
-      copyButton.innerHTML = copyButtonLabel;
-      codeBlock.setAttribute("tabindex", "0");
-      codeBlock.appendChild(copyButton);
-
-      // wrap codebock with relative parent element
-      codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
-      wrapper.appendChild(codeBlock);
-
-      copyButton.addEventListener("click", async () => {
-        await copyCode(codeBlock, copyButton);
-      });
-    }
-
-    async function copyCode(block, button) {
-      const code = block.querySelector("code");
-      const text = code?.innerText;
-
-      await navigator.clipboard.writeText(text ?? "");
-
-      // visual feedback that task is completed
-      button.innerText = "已复制";
-
-      setTimeout(() => {
-        button.innerText = copyButtonLabel;
-      }, 700);
-    }
-  }
-  attachCopyButtons();
-
-  /* Go to page start after page swap */
-  document.addEventListener("astro:after-swap", () =>
-    window.scrollTo({ left: 0, top: 0, behavior: "instant" })
-  );
+  initializeArticle();
+  document.addEventListener("astro:page-load", initializeArticle);
+  document.addEventListener("astro:before-swap", () => disposeArticle?.());
 </script>
