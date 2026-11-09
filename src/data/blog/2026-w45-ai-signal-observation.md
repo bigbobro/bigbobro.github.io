@@ -223,7 +223,7 @@ Anthropic 用隐私保护方法分析了 20.7 万个 Claude 和 Claude Code 科�
 
 ### robots.txt 训练信号：Google 也说要支持
 
-上期 OpenAI 说会遵守一份共享的 robots.txt 信号，用来表示网站内容能否用于 AI 训练。这周 Google 说计划支持 robots.txt 里统一的 AI 训练偏好标记。收录的摘要没有给出标记名称、日期或其他采用方，和 OpenAI 指向的是不是同一份 IETF 草案，也没写。
+上期 OpenAI 说会遵守一份共享的 robots.txt 信号，用来表示网站内容能否用于 AI 训练。这周 TLDR 的摘要提到，Google 计划支持 robots.txt 里统一的 AI 训练偏好标记；从链接路径看，Google 的原文可能是 10 月发的。收录的摘要没有给出标记名称、生效日期或其他采用方，和 OpenAI 指向的是不是同一份 IETF 草案，也没写。
 
 来源：[Supporting a shared AI training control for websites (Google Search Central)](https://developers.google.com/search/blog/2026/10/ai-training-control)
 
